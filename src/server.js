@@ -6,9 +6,9 @@ const PORT = process.env.PORT || 8080;
 
 async function start() {
   try {
-    // You can comment this out TEMPORARILY until you create MongoDB URI:
+    
     // await connectDB(process.env.MONGODB_URI);
-
+    await connectDB(process.env.MONGODB_URI); // ✅ this line triggers connection
     app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
   } catch (err) {
     console.error("❌ Failed to start server:", err);
