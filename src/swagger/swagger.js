@@ -3,6 +3,9 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDoc = {
   openapi: "3.0.0",
   info: { title: "Bookshelf Management API", version: "1.0.0" },
+  servers: [
+    { url: process.env.BASE_URL || "http://localhost:8080" }
+  ],
   components: {
     schemas: {
       Book: {
