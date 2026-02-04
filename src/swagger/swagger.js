@@ -57,6 +57,42 @@ const swaggerDoc = {
           shelfNumber: { type: "string" },
           status: { type: "string", enum: ["reading", "completed", "planned"] }
         }
+      },
+      Author: {
+        type: "object",
+        properties: {
+          _id: { type: "string", example: "64f1c9c2b2d1d9a7c8f1a222" },
+          firstName: { type: "string", example: "Chimamanda" },
+          lastName: { type: "string", example: "Adichie" },
+          nationality: { type: "string", example: "Nigerian" },
+          birthYear: { type: "integer", example: 1977 },
+          genres: { type: "array", items: { type: "string" }, example: ["Fiction"] },
+          bio: { type: "string", example: "Award-winning novelist and essayist." },
+          createdAt: { type: "string", format: "date-time" }
+        }
+      },
+      AuthorInput: {
+        type: "object",
+        required: ["firstName", "lastName", "nationality", "birthYear", "genres", "bio"],
+        properties: {
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          nationality: { type: "string" },
+          birthYear: { type: "integer", minimum: 0 },
+          genres: { type: "array", items: { type: "string" } },
+          bio: { type: "string" }
+        }
+      },
+      AuthorUpdate: {
+        type: "object",
+        properties: {
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          nationality: { type: "string" },
+          birthYear: { type: "integer", minimum: 0 },
+          genres: { type: "array", items: { type: "string" } },
+          bio: { type: "string" }
+        }
       }
     }
   },
@@ -188,6 +224,139 @@ const swaggerDoc = {
                 schema: {
                   type: "object",
                   properties: { data: { $ref: "#/components/schemas/Book" } }
+                }
+              }
+            }
+          },
+          400: { description: "Invalid id" },
+          404: { description: "Not found" }
+        }
+      }
+    },
+    "/authors": {
+      get: {
+        summary: "List authors",
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    data: { type: "array", items: { $ref: "#/components/schemas/Author" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      post: {
+        summary: "Create an author",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AuthorInput" }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: "Created",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { data: { $ref: "#/components/schemas/Author" } }
+                }
+              }
+            }
+          },
+          400: { description: "Validation error" }
+        }
+      }
+    },
+    "/authors/{id}": {
+      get: {
+        summary: "Get an author by id",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" }
+          }
+        ],
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { data: { $ref: "#/components/schemas/Author" } }
+                }
+              }
+            }
+          },
+          400: { description: "Invalid id" },
+          404: { description: "Not found" }
+        }
+      },
+      put: {
+        summary: "Update an author",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" }
+          }
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AuthorUpdate" }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: "OK",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { data: { $ref: "#/components/schemas/Author" } }
+                }
+              }
+            }
+          },
+          400: { description: "Validation error" },
+          404: { description: "Not found" }
+        }
+      },
+      delete: {
+        summary: "Delete an author",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" }
+          }
+        ],
+        responses: {
+          200: {
+            description: "Deleted",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: { data: { $ref: "#/components/schemas/Author" } }
                 }
               }
             }
