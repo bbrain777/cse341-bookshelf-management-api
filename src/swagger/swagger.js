@@ -1,12 +1,29 @@
 const swaggerUi = require("swagger-ui-express");
 
+const servers = [];
+if (process.env.BASE_URL) {
+  servers.push({ url: process.env.BASE_URL });
+}
+servers.push({ url: "http://localhost:8080" });
+
 const swaggerDoc = {
   openapi: "3.0.0",
   info: { title: "Bookshelf Management API", version: "1.0.0" },
-  servers: [
-    { url: process.env.BASE_URL || "http://localhost:8080" }
+  servers,
+  tags: [
+    { name: "Books", description: "Operations about books" },
+    { name: "Authors", description: "Operations about authors" },
+    { name: "Health", description: "Health check" }
   ],
   components: {
+    securitySchemes: {
+      ApiKeyAuth: {
+        type: "apiKey",
+        in: "header",
+        name: "Authorization",
+        description: "Use: Bearer <token>"
+      }
+    },
     schemas: {
       Book: {
         type: "object",
@@ -99,12 +116,19 @@ const swaggerDoc = {
       }
     }
   },
+  security: [],
   paths: {
     "/health": {
-      get: { summary: "Health check", responses: { 200: { description: "OK" } } }
+      get: {
+        tags: ["Health"],
+        summary: "Health check",
+        security: [],
+        responses: { 200: { description: "OK" } }
+      }
     },
     "/books": {
       get: {
+        tags: ["Books"],
         summary: "List books",
         responses: {
           200: {
@@ -123,7 +147,9 @@ const swaggerDoc = {
         }
       },
       post: {
+        tags: ["Books"],
         summary: "Create a book",
+        security: [{ ApiKeyAuth: [] }],
         requestBody: {
           required: true,
           content: {
@@ -150,6 +176,7 @@ const swaggerDoc = {
     },
     "/books/{id}": {
       get: {
+        tags: ["Books"],
         summary: "Get a book by id",
         parameters: [
           {
@@ -176,7 +203,9 @@ const swaggerDoc = {
         }
       },
       put: {
+        tags: ["Books"],
         summary: "Update a book",
+        security: [{ ApiKeyAuth: [] }],
         parameters: [
           {
             name: "id",
@@ -210,7 +239,9 @@ const swaggerDoc = {
         }
       },
       delete: {
+        tags: ["Books"],
         summary: "Delete a book",
+        security: [{ ApiKeyAuth: [] }],
         parameters: [
           {
             name: "id",
@@ -238,6 +269,7 @@ const swaggerDoc = {
     },
     "/authors": {
       get: {
+        tags: ["Authors"],
         summary: "List authors",
         responses: {
           200: {
@@ -256,7 +288,9 @@ const swaggerDoc = {
         }
       },
       post: {
+        tags: ["Authors"],
         summary: "Create an author",
+        security: [{ ApiKeyAuth: [] }],
         requestBody: {
           required: true,
           content: {
@@ -283,6 +317,7 @@ const swaggerDoc = {
     },
     "/authors/{id}": {
       get: {
+        tags: ["Authors"],
         summary: "Get an author by id",
         parameters: [
           {
@@ -309,7 +344,9 @@ const swaggerDoc = {
         }
       },
       put: {
+        tags: ["Authors"],
         summary: "Update an author",
+        security: [{ ApiKeyAuth: [] }],
         parameters: [
           {
             name: "id",
@@ -343,7 +380,9 @@ const swaggerDoc = {
         }
       },
       delete: {
+        tags: ["Authors"],
         summary: "Delete an author",
+        security: [{ ApiKeyAuth: [] }],
         parameters: [
           {
             name: "id",
