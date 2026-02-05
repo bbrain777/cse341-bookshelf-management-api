@@ -3,6 +3,8 @@ const swaggerUi = require("swagger-ui-express");
 const servers = [];
 if (process.env.BASE_URL) {
   servers.push({ url: process.env.BASE_URL });
+} else if (process.env.RENDER_EXTERNAL_URL) {
+  servers.push({ url: process.env.RENDER_EXTERNAL_URL });
 }
 servers.push({ url: "http://localhost:8080" });
 
