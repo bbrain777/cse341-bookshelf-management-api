@@ -5,8 +5,9 @@ if (process.env.BASE_URL) {
   servers.push({ url: process.env.BASE_URL });
 } else if (process.env.RENDER_EXTERNAL_URL) {
   servers.push({ url: process.env.RENDER_EXTERNAL_URL });
+} else {
+  servers.push({ url: "http://localhost:8080" });
 }
-servers.push({ url: "http://localhost:8080" });
 
 const swaggerDoc = {
   openapi: "3.0.0",
