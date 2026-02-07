@@ -6,11 +6,12 @@ const {
   updateAuthor,
   deleteAuthor
 } = require("../controllers/authorController");
+const apiKeyAuth = require("../middleware/apiKeyAuth");
 
 router.get("/", listAuthors);
-router.post("/", createAuthor);
+router.post("/", apiKeyAuth, createAuthor);
 router.get("/:id", getAuthorById);
-router.put("/:id", updateAuthor);
-router.delete("/:id", deleteAuthor);
+router.put("/:id", apiKeyAuth, updateAuthor);
+router.delete("/:id", apiKeyAuth, deleteAuthor);
 
 module.exports = router;
