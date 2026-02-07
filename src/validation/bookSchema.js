@@ -29,15 +29,6 @@ function validateBook(payload = {}) {
   }
 
   if (
-    typeof payload.authorPlaceOfBirth !== "string" ||
-    payload.authorPlaceOfBirth.trim() === ""
-  ) {
-    errors.push("authorPlaceOfBirth is required");
-  } else {
-    value.authorPlaceOfBirth = payload.authorPlaceOfBirth.trim();
-  }
-
-  if (
     typeof payload.copiesAvailable !== "number" ||
     !Number.isInteger(payload.copiesAvailable) ||
     payload.copiesAvailable < 0
@@ -98,17 +89,6 @@ function validateBookUpdate(payload = {}) {
       errors.push("genre must be a non-empty string when provided");
     } else {
       value.genre = payload.genre.trim();
-    }
-  }
-
-  if (payload.authorPlaceOfBirth !== undefined) {
-    if (
-      typeof payload.authorPlaceOfBirth !== "string" ||
-      payload.authorPlaceOfBirth.trim() === ""
-    ) {
-      errors.push("authorPlaceOfBirth must be a non-empty string when provided");
-    } else {
-      value.authorPlaceOfBirth = payload.authorPlaceOfBirth.trim();
     }
   }
 

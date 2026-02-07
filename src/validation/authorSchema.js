@@ -20,16 +20,6 @@ function validateAuthor(payload = {}) {
     value.nationality = payload.nationality.trim();
   }
 
-  if (
-    typeof payload.birthYear !== "number" ||
-    !Number.isInteger(payload.birthYear) ||
-    payload.birthYear < 0
-  ) {
-    errors.push("birthYear must be a non-negative integer");
-  } else {
-    value.birthYear = payload.birthYear;
-  }
-
   if (!Array.isArray(payload.genres) || payload.genres.length === 0) {
     errors.push("genres must be a non-empty array");
   } else if (!payload.genres.every((g) => typeof g === "string" && g.trim() !== "")) {
@@ -72,18 +62,6 @@ function validateAuthorUpdate(payload = {}) {
       errors.push("nationality must be a non-empty string when provided");
     } else {
       value.nationality = payload.nationality.trim();
-    }
-  }
-
-  if (payload.birthYear !== undefined) {
-    if (
-      typeof payload.birthYear !== "number" ||
-      !Number.isInteger(payload.birthYear) ||
-      payload.birthYear < 0
-    ) {
-      errors.push("birthYear must be a non-negative integer when provided");
-    } else {
-      value.birthYear = payload.birthYear;
     }
   }
 

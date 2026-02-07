@@ -35,7 +35,6 @@ const swaggerDoc = {
           author: { type: "string", example: "Robert C. Martin" },
           isbn: { type: "string", example: "9780132350884" },
           genre: { type: "string", example: "Software Engineering" },
-          authorPlaceOfBirth: { type: "string", example: "Chicago, IL, USA" },
           copiesAvailable: { type: "integer", example: 3 },
           shelfNumber: { type: "string", example: "A-12" },
           status: {
@@ -52,7 +51,6 @@ const swaggerDoc = {
           "title",
           "author",
           "genre",
-          "authorPlaceOfBirth",
           "copiesAvailable",
           "shelfNumber"
         ],
@@ -61,7 +59,6 @@ const swaggerDoc = {
           author: { type: "string" },
           isbn: { type: "string" },
           genre: { type: "string" },
-          authorPlaceOfBirth: { type: "string" },
           copiesAvailable: { type: "integer", minimum: 0 },
           shelfNumber: { type: "string" },
           status: { type: "string", enum: ["reading", "completed", "planned"] }
@@ -74,7 +71,6 @@ const swaggerDoc = {
           author: { type: "string" },
           isbn: { type: "string" },
           genre: { type: "string" },
-          authorPlaceOfBirth: { type: "string" },
           copiesAvailable: { type: "integer", minimum: 0 },
           shelfNumber: { type: "string" },
           status: { type: "string", enum: ["reading", "completed", "planned"] }
@@ -87,7 +83,6 @@ const swaggerDoc = {
           firstName: { type: "string", example: "Chimamanda" },
           lastName: { type: "string", example: "Adichie" },
           nationality: { type: "string", example: "Nigerian" },
-          birthYear: { type: "integer", example: 1977 },
           genres: { type: "array", items: { type: "string" }, example: ["Fiction"] },
           bio: { type: "string", example: "Award-winning novelist and essayist." },
           createdAt: { type: "string", format: "date-time" }
@@ -95,12 +90,11 @@ const swaggerDoc = {
       },
       AuthorInput: {
         type: "object",
-        required: ["firstName", "lastName", "nationality", "birthYear", "genres", "bio"],
+        required: ["firstName", "lastName", "nationality", "genres", "bio"],
         properties: {
           firstName: { type: "string" },
           lastName: { type: "string" },
           nationality: { type: "string" },
-          birthYear: { type: "integer", minimum: 0 },
           genres: { type: "array", items: { type: "string" } },
           bio: { type: "string" }
         }
@@ -111,7 +105,6 @@ const swaggerDoc = {
           firstName: { type: "string" },
           lastName: { type: "string" },
           nationality: { type: "string" },
-          birthYear: { type: "integer", minimum: 0 },
           genres: { type: "array", items: { type: "string" } },
           bio: { type: "string" }
         }
