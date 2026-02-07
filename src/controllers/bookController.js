@@ -91,13 +91,16 @@ async function deleteBook(req, res, next) {
       return res.status(400).json({ error: true, message: "Invalid book id" });
     }
     const db = getDB();
-    const result = await getBooksCollection(db).findOneAndDelete({
+    const result = await getBooksCollection(db).deleteOne({
       _id: new ObjectId(req.params.id)
     });
-    if (!result.value) {
-      return res.status(404).json({ error: true, message: "Book not found" });
+    if (result.deletedCount === 0) {
+      return res.status(200).json({
+        data: { deleted: false },
+        message: "Book not found or already deleted"
+      });
     }
-    res.json({ data: result.value });
+    res.status(200).json({ data: { deleted: true } });
   } catch (err) {
     next(err);
   }
