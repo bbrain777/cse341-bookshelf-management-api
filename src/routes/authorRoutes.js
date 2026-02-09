@@ -4,14 +4,25 @@ const {
   createAuthor,
   getAuthorById,
   updateAuthor,
-  deleteAuthor
+  deleteAuthor,
 } = require("../controllers/authorController");
-const apiKeyAuth = require("../middleware/apiKeyAuth");
 
+const apiKeyAuth = require("../middleware/apiKeyAuth");
+const { isAuthenticated, isAdmin } = require("../middleware/auth");
+
+// Public route
 router.get("/", listAuthors);
-router.post("/", apiKeyAuth, createAuthor);
+
+// Create author: must be logged in via OAuth
+router.post("/", isAuthenticated, createAuthor);
+
+// Get author by ID (public)
 router.get("/:id", getAuthorById);
+
+// Update author: protect with API key OR OAuth
 router.put("/:id", apiKeyAuth, updateAuthor);
-router.delete("/:id", apiKeyAuth, deleteAuthor);
+
+// Delete author: admin-only via OAuth
+router.delete("/:id", isAdmin, deleteAuthor);
 
 module.exports = router;

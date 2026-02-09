@@ -1,12 +1,14 @@
-const router = require("express").Router();
-const bookRoutes = require("./bookRoutes");
+const express = require("express");
 const authorRoutes = require("./authorRoutes");
+const bookRoutes = require("./bookRoutes");
+const memberRoutes = require("./memberRoutes");
+const loanRoutes = require("./loanRoutes");
 
-router.get("/", (req, res) => {
-  res.json({ message: "Bookshelf Management API" });
-});
+const router = express.Router();
 
-router.use("/books", bookRoutes);
 router.use("/authors", authorRoutes);
+router.use("/books", bookRoutes);
+router.use("/members", memberRoutes);
+router.use("/loans", loanRoutes);
 
 module.exports = router;
