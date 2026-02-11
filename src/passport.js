@@ -53,13 +53,18 @@ if (oauthConfigured) {
 }
 
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  // Store a stable primitive in session to avoid BSON/Object serialization issues.
+  done(null, String(user._id));
 });
 
 passport.deserializeUser(async (id, done) => {
   try {
     const db = getDB();
-    const objectId = typeof id === "string" ? new ObjectId(id) : id;
+    if (!id || !ObjectId.isValid(String(id))) {
+      return done(null, false);
+    }
+
+    const objectId = new ObjectId(String(id));
     const user = await db.collection("users").findOne({ _id: objectId });
     done(null, user);
   } catch (err) {
