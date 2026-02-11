@@ -77,17 +77,17 @@ async function updateLoan(req, res, next) {
     }
 
     const db = getDB();
-    const result = await getLoansCollection(db).findOneAndUpdate(
+    const updatedLoan = await getLoansCollection(db).findOneAndUpdate(
       { _id: new ObjectId(req.params.id) },
       { $set: value },
       { returnDocument: "after" },
     );
 
-    if (!result.value) {
+    if (!updatedLoan) {
       return res.status(404).json({ error: true, message: "Loan not found" });
     }
 
-    res.json({ data: result.value });
+    res.json({ data: updatedLoan });
   } catch (err) {
     next(err);
   }

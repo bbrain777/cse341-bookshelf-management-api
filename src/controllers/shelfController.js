@@ -103,17 +103,17 @@ async function updateShelf(req, res, next) {
     }
 
     const db = getDB();
-    const result = await getShelvesCollection(db).findOneAndUpdate(
+    const updatedShelf = await getShelvesCollection(db).findOneAndUpdate(
       { _id: new ObjectId(req.params.id) },
       { $set: { ...value, updatedAt: new Date() } },
       { returnDocument: "after" },
     );
 
-    if (!result.value) {
+    if (!updatedShelf) {
       return res.status(404).json({ error: true, message: "Shelf not found" });
     }
 
-    res.json({ data: result.value });
+    res.json({ data: updatedShelf });
   } catch (err) {
     next(err);
   }

@@ -68,17 +68,17 @@ async function updateAuthor(req, res, next) {
     }
 
     const db = getDB();
-    const result = await getAuthorsCollection(db).findOneAndUpdate(
+    const updatedAuthor = await getAuthorsCollection(db).findOneAndUpdate(
       { _id: new ObjectId(req.params.id) },
       { $set: value },
       { returnDocument: "after" }
     );
 
-    if (!result.value) {
+    if (!updatedAuthor) {
       return res.status(404).json({ error: true, message: "Author not found" });
     }
 
-    res.json({ data: result.value });
+    res.json({ data: updatedAuthor });
   } catch (err) {
     next(err);
   }
@@ -90,13 +90,13 @@ async function deleteAuthor(req, res, next) {
       return res.status(400).json({ error: true, message: "Invalid author id" });
     }
     const db = getDB();
-    const result = await getAuthorsCollection(db).findOneAndDelete({
+    const deletedAuthor = await getAuthorsCollection(db).findOneAndDelete({
       _id: new ObjectId(req.params.id)
     });
-    if (!result.value) {
+    if (!deletedAuthor) {
       return res.status(404).json({ error: true, message: "Author not found" });
     }
-    res.json({ data: result.value });
+    res.json({ data: deletedAuthor });
   } catch (err) {
     next(err);
   }

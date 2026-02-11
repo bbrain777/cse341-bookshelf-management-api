@@ -81,17 +81,17 @@ async function updateMember(req, res, next) {
     }
 
     const db = getDB();
-    const result = await getMembersCollection(db).findOneAndUpdate(
+    const updatedMember = await getMembersCollection(db).findOneAndUpdate(
       { _id: new ObjectId(req.params.id) },
       { $set: value },
       { returnDocument: "after" },
     );
 
-    if (!result.value) {
+    if (!updatedMember) {
       return res.status(404).json({ error: true, message: "Member not found" });
     }
 
-    res.json({ data: result.value });
+    res.json({ data: updatedMember });
   } catch (err) {
     next(err);
   }

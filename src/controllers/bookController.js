@@ -98,17 +98,17 @@ async function updateBook(req, res, next) {
     }
 
     const db = getDB();
-    const result = await getBooksCollection(db).findOneAndUpdate(
+    const updatedBook = await getBooksCollection(db).findOneAndUpdate(
       { _id: new ObjectId(req.params.id) },
       { $set: value },
       { returnDocument: "after" }
     );
 
-    if (!result.value) {
+    if (!updatedBook) {
       return res.status(404).json({ error: true, message: "Book not found" });
     }
 
-    res.json({ data: result.value });
+    res.json({ data: updatedBook });
   } catch (err) {
     next(err);
   }
