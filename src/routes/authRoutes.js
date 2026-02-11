@@ -18,9 +18,18 @@ router.get(
 );
 
 // Current user profile
-router.get("/me", getProfile);
+router.get("/me", (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: true, message: "Not authenticated" });
+  }
+  res.json({ data: req.user });
+});
 
 // Logout
-router.post("/logout", logout);
+router.post("/logout", (req, res) => {
+  req.logout(() => {
+    res.json({ message: "Logged out" });
+  });
+});
 
 module.exports = router;

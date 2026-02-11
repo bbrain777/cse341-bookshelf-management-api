@@ -2,13 +2,17 @@
 const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
-const passport = require("passport");
+const passport = require("./passport");
 
 const routes = require("./routes"); // index.js gathers feature routes
 const authRoutes = require("./routes/authRoutes");
 const { swaggerSetup } = require("./swagger/swagger");
 const errorHandler = require("./middleware/errorHandler");
-
+const { isAuthenticated, isAdmin } = require("./middleware/auth"); // 🔑 import middleware
+const bookRoutes = require("./routes/bookRoutes");
+const authorRoutes = require("./routes/authorRoutes");
+const memberRoutes = require("./routes/memberRoutes");
+const loanRoutes = require("./routes/loanRoutes");
 const app = express();
 
 // Middleware
@@ -39,9 +43,14 @@ app.use(passport.session());
 // Health check
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
-// Routes
-app.use("/auth", authRoutes); // OAuth login, callback, profile, logout
-app.use("/", routes); // Books, Authors, Members, Loans, etc.
+// Public routes
+app.use("/auth", authRoutes);
+
+// Protected routes (admin only)
+app.use("/books", isAdmin, bookRoutes);
+app.use("/authors", isAdmin, authorRoutes);
+app.use("/members", isAdmin, memberRoutes);
+app.use("/loans", isAdmin, loanRoutes);
 
 // Swagger
 swaggerSetup(app, {
