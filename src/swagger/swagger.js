@@ -42,6 +42,33 @@ const swaggerDoc = {
           createdAt: { type: "string", format: "date-time" },
         },
       },
+      BookCreate: {
+        type: "object",
+        required: ["title", "author", "genre", "copiesAvailable", "shelfNumber"],
+        properties: {
+          title: { type: "string", example: "Atomic Habits" },
+          author: { type: "string", example: "James Clear" },
+          authorId: { type: "string", example: "6983815d82d8cec65139dee1" },
+          isbn: { type: "string", example: "9780735211292" },
+          genre: { type: "string", example: "Self-help" },
+          copiesAvailable: { type: "integer", minimum: 0, example: 4 },
+          shelfNumber: { type: "string", example: "A3" },
+          status: { type: "string", enum: ["reading", "completed", "planned"], example: "planned" },
+        },
+      },
+      BookUpdate: {
+        type: "object",
+        properties: {
+          title: { type: "string", example: "Atomic Habits (Updated)" },
+          author: { type: "string", example: "James Clear" },
+          authorId: { type: "string", example: "6983815d82d8cec65139dee1" },
+          isbn: { type: "string", example: "9780735211292" },
+          genre: { type: "string", example: "Productivity" },
+          copiesAvailable: { type: "integer", minimum: 0, example: 3 },
+          shelfNumber: { type: "string", example: "A4" },
+          status: { type: "string", enum: ["reading", "completed", "planned"], example: "reading" },
+        },
+      },
       Author: {
         type: "object",
         properties: {
@@ -52,6 +79,27 @@ const swaggerDoc = {
           genres: { type: "array", items: { type: "string" } },
           bio: { type: "string" },
           createdAt: { type: "string", format: "date-time" },
+        },
+      },
+      AuthorCreate: {
+        type: "object",
+        required: ["firstName", "lastName", "nationality", "genres", "bio"],
+        properties: {
+          firstName: { type: "string", example: "Chinua" },
+          lastName: { type: "string", example: "Achebe" },
+          nationality: { type: "string", example: "Nigerian" },
+          genres: { type: "array", items: { type: "string" }, example: ["Fiction", "Literary"] },
+          bio: { type: "string", example: "Celebrated novelist and essayist." },
+        },
+      },
+      AuthorUpdate: {
+        type: "object",
+        properties: {
+          firstName: { type: "string", example: "Chinua" },
+          lastName: { type: "string", example: "Achebe" },
+          nationality: { type: "string", example: "Nigerian" },
+          genres: { type: "array", items: { type: "string" }, example: ["Fiction", "Classic"] },
+          bio: { type: "string", example: "Updated biography." },
         },
       },
       Shelf: {
@@ -67,6 +115,25 @@ const swaggerDoc = {
           updatedAt: { type: "string", format: "date-time" },
         },
       },
+      ShelfCreate: {
+        type: "object",
+        required: ["name"],
+        properties: {
+          name: { type: "string", example: "Weekend Reads" },
+          description: { type: "string", example: "Books for Saturday and Sunday." },
+          visibility: { type: "string", enum: ["private", "shared", "public"], example: "private" },
+          bookIds: { type: "array", items: { type: "string" }, example: ["6983815d82d8cec65139dee1"] },
+        },
+      },
+      ShelfUpdate: {
+        type: "object",
+        properties: {
+          name: { type: "string", example: "Weekend Reads Updated" },
+          description: { type: "string", example: "Updated shelf description." },
+          visibility: { type: "string", enum: ["private", "shared", "public"], example: "shared" },
+          bookIds: { type: "array", items: { type: "string" }, example: ["6983815d82d8cec65139dee1"] },
+        },
+      },
       Member: {
         type: "object",
         properties: {
@@ -74,6 +141,21 @@ const swaggerDoc = {
           name: { type: "string" },
           email: { type: "string" },
           createdAt: { type: "string", format: "date-time" },
+        },
+      },
+      MemberCreate: {
+        type: "object",
+        required: ["name", "email"],
+        properties: {
+          name: { type: "string", example: "Jane Doe" },
+          email: { type: "string", example: "jane@example.com" },
+        },
+      },
+      MemberUpdate: {
+        type: "object",
+        properties: {
+          name: { type: "string", example: "Jane A. Doe" },
+          email: { type: "string", example: "jane.a@example.com" },
         },
       },
       Loan: {
@@ -86,6 +168,24 @@ const swaggerDoc = {
           dueDate: { type: "string", format: "date-time" },
           status: { type: "string", enum: ["active", "returned", "overdue"] },
           createdAt: { type: "string", format: "date-time" },
+        },
+      },
+      LoanCreate: {
+        type: "object",
+        required: ["bookId", "memberId"],
+        properties: {
+          bookId: { type: "string", example: "6983815d82d8cec65139dee1" },
+          memberId: { type: "string", example: "6983815d82d8cec65139dee2" },
+          loanDate: { type: "string", format: "date-time", example: "2026-02-11T12:00:00.000Z" },
+          dueDate: { type: "string", format: "date-time", example: "2026-02-25T12:00:00.000Z" },
+          status: { type: "string", enum: ["active", "returned", "overdue"], example: "active" },
+        },
+      },
+      LoanUpdate: {
+        type: "object",
+        properties: {
+          dueDate: { type: "string", format: "date-time", example: "2026-03-01T12:00:00.000Z" },
+          status: { type: "string", enum: ["active", "returned", "overdue"], example: "returned" },
         },
       },
       User: {
@@ -171,6 +271,14 @@ const swaggerDoc = {
         tags: ["Books"],
         summary: "Create book (admin)",
         security: [{ SessionCookie: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/BookCreate" },
+            },
+          },
+        },
         responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
@@ -186,6 +294,14 @@ const swaggerDoc = {
         summary: "Update book (admin)",
         security: [{ SessionCookie: [] }],
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/BookUpdate" },
+            },
+          },
+        },
         responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       delete: {
@@ -202,6 +318,14 @@ const swaggerDoc = {
         tags: ["Authors"],
         summary: "Create author (admin)",
         security: [{ SessionCookie: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AuthorCreate" },
+            },
+          },
+        },
         responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
@@ -217,6 +341,14 @@ const swaggerDoc = {
         summary: "Update author (admin)",
         security: [{ SessionCookie: [] }],
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AuthorUpdate" },
+            },
+          },
+        },
         responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       delete: {
@@ -241,6 +373,14 @@ const swaggerDoc = {
         tags: ["Shelves"],
         summary: "Create shelf (authenticated)",
         security: [{ SessionCookie: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/ShelfCreate" },
+            },
+          },
+        },
         responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" } },
       },
     },
@@ -256,6 +396,14 @@ const swaggerDoc = {
         summary: "Update shelf (owner or admin)",
         security: [{ SessionCookie: [] }],
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/ShelfUpdate" },
+            },
+          },
+        },
         responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Forbidden" } },
       },
       delete: {
@@ -277,6 +425,14 @@ const swaggerDoc = {
         tags: ["Members"],
         summary: "Create member (admin)",
         security: [{ SessionCookie: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/MemberCreate" },
+            },
+          },
+        },
         responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
@@ -293,6 +449,14 @@ const swaggerDoc = {
         summary: "Update member (admin)",
         security: [{ SessionCookie: [] }],
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/MemberUpdate" },
+            },
+          },
+        },
         responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       delete: {
@@ -314,6 +478,14 @@ const swaggerDoc = {
         tags: ["Loans"],
         summary: "Create loan (admin)",
         security: [{ SessionCookie: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/LoanCreate" },
+            },
+          },
+        },
         responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
@@ -330,6 +502,14 @@ const swaggerDoc = {
         summary: "Update loan (admin)",
         security: [{ SessionCookie: [] }],
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/LoanUpdate" },
+            },
+          },
+        },
         responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       delete: {
