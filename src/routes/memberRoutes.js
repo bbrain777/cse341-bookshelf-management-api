@@ -7,8 +7,7 @@ const {
   deleteMember,
 } = require("../controllers/memberController");
 
-const apiKeyAuth = require("../middleware/apiKeyAuth");
-const { isAuthenticated, isAdmin } = require("../middleware/auth");
+const { isAdmin } = require("../middleware/auth");
 
 // Admin-only routes
 router.get("/", isAdmin, listMembers);

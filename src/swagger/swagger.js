@@ -11,663 +11,333 @@ if (process.env.BASE_URL) {
 
 const swaggerDoc = {
   openapi: "3.0.0",
-  info: { title: "Bookshelf Management API", version: "1.0.0" },
+  info: {
+    title: "Bookshelf Management API",
+    version: "1.0.0",
+    description: "OAuth-protected bookshelf/library management API",
+  },
   servers,
-  tags: [
-    { name: "Books", description: "Operations about books" },
-    { name: "Authors", description: "Operations about authors" },
-    { name: "Members", description: "Operations about members" },
-    { name: "Loans", description: "Operations about loans" },
-    { name: "Health", description: "Health check" },
-  ],
   components: {
     securitySchemes: {
-      ApiKeyAuth: {
+      SessionCookie: {
         type: "apiKey",
-        in: "header",
-        name: "Authorization",
-        description: "Use: Bearer <token>",
+        in: "cookie",
+        name: "connect.sid",
+        description: "Session cookie returned after OAuth login",
       },
     },
     schemas: {
       Book: {
         type: "object",
         properties: {
-          _id: { type: "string", example: "64f1c9c2b2d1d9a7c8f1a111" },
-          title: { type: "string", example: "Clean Code" },
-          author: { type: "string", example: "Robert C. Martin" },
-          isbn: { type: "string", example: "9780132350884" },
-          genre: { type: "string", example: "Software Engineering" },
-          copiesAvailable: { type: "integer", example: 3 },
-          shelfNumber: { type: "string", example: "A-12" },
-          status: {
-            type: "string",
-            enum: ["reading", "completed", "planned"],
-            example: "reading",
-          },
+          _id: { type: "string" },
+          title: { type: "string" },
+          author: { type: "string" },
+          authorId: { type: "string" },
+          isbn: { type: "string" },
+          genre: { type: "string" },
+          copiesAvailable: { type: "integer" },
+          shelfNumber: { type: "string" },
+          status: { type: "string", enum: ["reading", "completed", "planned"] },
           createdAt: { type: "string", format: "date-time" },
-        },
-      },
-      BookInput: {
-        type: "object",
-        required: [
-          "title",
-          "author",
-          "genre",
-          "copiesAvailable",
-          "shelfNumber",
-        ],
-        properties: {
-          title: { type: "string" },
-          author: { type: "string" },
-          isbn: { type: "string" },
-          genre: { type: "string" },
-          copiesAvailable: { type: "integer", minimum: 0 },
-          shelfNumber: { type: "string" },
-          status: { type: "string", enum: ["reading", "completed", "planned"] },
-        },
-      },
-      BookUpdate: {
-        type: "object",
-        properties: {
-          title: { type: "string" },
-          author: { type: "string" },
-          isbn: { type: "string" },
-          genre: { type: "string" },
-          copiesAvailable: { type: "integer", minimum: 0 },
-          shelfNumber: { type: "string" },
-          status: { type: "string", enum: ["reading", "completed", "planned"] },
         },
       },
       Author: {
         type: "object",
         properties: {
-          _id: { type: "string", example: "64f1c9c2b2d1d9a7c8f1a222" },
-          firstName: { type: "string", example: "Chimamanda" },
-          lastName: { type: "string", example: "Adichie" },
-          nationality: { type: "string", example: "Nigerian" },
-          genres: {
-            type: "array",
-            items: { type: "string" },
-            example: ["Fiction"],
-          },
-          bio: {
-            type: "string",
-            example: "Award-winning novelist and essayist.",
-          },
+          _id: { type: "string" },
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          nationality: { type: "string" },
+          genres: { type: "array", items: { type: "string" } },
+          bio: { type: "string" },
           createdAt: { type: "string", format: "date-time" },
         },
       },
-      AuthorInput: {
-        type: "object",
-        required: ["firstName", "lastName", "nationality", "genres", "bio"],
-        properties: {
-          firstName: { type: "string" },
-          lastName: { type: "string" },
-          nationality: { type: "string" },
-          genres: { type: "array", items: { type: "string" } },
-          bio: { type: "string" },
-        },
-      },
-      AuthorUpdate: {
+      Shelf: {
         type: "object",
         properties: {
-          firstName: { type: "string" },
-          lastName: { type: "string" },
-          nationality: { type: "string" },
-          genres: { type: "array", items: { type: "string" } },
-          bio: { type: "string" },
+          _id: { type: "string" },
+          name: { type: "string" },
+          description: { type: "string" },
+          ownerUserId: { type: "string" },
+          visibility: { type: "string", enum: ["private", "shared", "public"] },
+          bookIds: { type: "array", items: { type: "string" } },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
         },
       },
       Member: {
         type: "object",
         properties: {
-          _id: { type: "string", example: "64f1c9c2b2d1d9a7c8f1a333" },
-          name: { type: "string", example: "Adams Soyama" },
-          email: { type: "string", example: "adams@example.com" },
+          _id: { type: "string" },
+          name: { type: "string" },
+          email: { type: "string" },
           createdAt: { type: "string", format: "date-time" },
-        },
-      },
-      MemberInput: {
-        type: "object",
-        required: ["name", "email"],
-        properties: {
-          name: { type: "string" },
-          email: { type: "string" },
-        },
-      },
-      MemberUpdate: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          email: { type: "string" },
         },
       },
       Loan: {
         type: "object",
         properties: {
-          _id: { type: "string", example: "64f1c9c2b2d1d9a7c8f1a444" },
-          bookId: { type: "string", example: "64f1c9c2b2d1d9a7c8f1a111" },
-          memberId: { type: "string", example: "64f1c9c2b2d1d9a7c8f1a333" },
-          loanDate: { type: "string", format: "date-time" },
-          dueDate: { type: "string", format: "date-time" },
-          status: {
-            type: "string",
-            enum: ["active", "returned", "overdue"],
-            example: "active",
-          },
-        },
-      },
-      LoanInput: {
-        type: "object",
-        required: ["bookId", "memberId"],
-        properties: {
+          _id: { type: "string" },
           bookId: { type: "string" },
           memberId: { type: "string" },
-          dueDate: { type: "string", format: "date-time" },
-        },
-      },
-      LoanUpdate: {
-        type: "object",
-        properties: {
+          loanDate: { type: "string", format: "date-time" },
           dueDate: { type: "string", format: "date-time" },
           status: { type: "string", enum: ["active", "returned", "overdue"] },
+          createdAt: { type: "string", format: "date-time" },
+        },
+      },
+      User: {
+        type: "object",
+        properties: {
+          _id: { type: "string" },
+          oauthProvider: { type: "string" },
+          providerId: { type: "string" },
+          name: { type: "string" },
+          email: { type: "string" },
+          role: { type: "string", enum: ["member", "admin"] },
         },
       },
     },
   },
-  security: [],
+  tags: [
+    { name: "Health" },
+    { name: "Auth" },
+    { name: "Books" },
+    { name: "Authors" },
+    { name: "Shelves" },
+    { name: "Members" },
+    { name: "Loans" },
+  ],
   paths: {
     "/health": {
       get: {
         tags: ["Health"],
         summary: "Health check",
-        security: [],
         responses: { 200: { description: "OK" } },
+      },
+    },
+    "/auth/login": {
+      get: {
+        tags: ["Auth"],
+        summary: "Start GitHub OAuth flow",
+        responses: { 302: { description: "Redirect to GitHub" } },
+      },
+    },
+    "/auth/callback": {
+      get: {
+        tags: ["Auth"],
+        summary: "GitHub OAuth callback",
+        responses: { 302: { description: "Redirect after auth" } },
+      },
+    },
+    "/auth/me": {
+      get: {
+        tags: ["Auth"],
+        summary: "Get current authenticated user",
+        security: [{ SessionCookie: [] }],
+        responses: {
+          200: { description: "Authenticated user", content: { "application/json": { schema: { type: "object", properties: { data: { $ref: "#/components/schemas/User" } } } } } },
+          401: { description: "Not authenticated" },
+        },
+      },
+    },
+    "/auth/logout": {
+      post: {
+        tags: ["Auth"],
+        summary: "Logout current session",
+        security: [{ SessionCookie: [] }],
+        responses: {
+          200: { description: "Logged out" },
+          500: { description: "Logout failed" },
+        },
       },
     },
     "/books": {
       get: {
         tags: ["Books"],
         summary: "List books",
-        responses: {
-          200: {
-            description: "OK",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    data: {
-                      type: "array",
-                      items: { $ref: "#/components/schemas/Book" },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        parameters: [
+          { name: "q", in: "query", schema: { type: "string" } },
+          { name: "genre", in: "query", schema: { type: "string" } },
+          { name: "authorId", in: "query", schema: { type: "string" } },
+          { name: "page", in: "query", schema: { type: "integer" } },
+          { name: "limit", in: "query", schema: { type: "integer" } },
+        ],
+        responses: { 200: { description: "OK" } },
       },
       post: {
         tags: ["Books"],
-        summary: "Create a book",
-        security: [{ ApiKeyAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/BookInput" },
-            },
-          },
-        },
-        responses: {
-          201: {
-            description: "Created",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: { data: { $ref: "#/components/schemas/Book" } },
-                },
-              },
-            },
-          },
-          400: { description: "Validation error" },
-        },
+        summary: "Create book (admin)",
+        security: [{ SessionCookie: [] }],
+        responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
     "/books/{id}": {
       get: {
         tags: ["Books"],
-        summary: "Get a book by id",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          200: {
-            description: "OK",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: { data: { $ref: "#/components/schemas/Book" } },
-                },
-              },
-            },
-          },
-          400: { description: "Invalid id" },
-          404: { description: "Not found" },
-        },
+        summary: "Get book by id",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "OK" }, 404: { description: "Not found" } },
       },
       put: {
         tags: ["Books"],
-        summary: "Update a book",
-        security: [{ ApiKeyAuth: [] }],
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/BookUpdate" },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "OK",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: { data: { $ref: "#/components/schemas/Book" } },
-                },
-              },
-            },
-          },
-          400: { description: "Validation error" },
-          404: { description: "Not found" },
-        },
+        summary: "Update book (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       delete: {
         tags: ["Books"],
-        summary: "Delete a book",
-        security: [{ ApiKeyAuth: [] }],
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          200: {
-            description: "Deleted",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: { data: { $ref: "#/components/schemas/Book" } },
-                },
-              },
-            },
-          },
-          400: { description: "Invalid id" },
-          404: { description: "Not found" },
-        },
+        summary: "Delete book (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Deleted" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
     "/authors": {
-      get: {
-        tags: ["Authors"],
-        summary: "List authors",
-        responses: {
-          200: {
-            description: "OK",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    data: {
-                      type: "array",
-                      items: { $ref: "#/components/schemas/Author" },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      get: { tags: ["Authors"], summary: "List authors", responses: { 200: { description: "OK" } } },
       post: {
         tags: ["Authors"],
-        summary: "Create an author",
-        security: [{ ApiKeyAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/AuthorInput" },
-            },
-          },
-        },
-        responses: {
-          201: {
-            description: "Created",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: { data: { $ref: "#/components/schemas/Author" } },
-                },
-              },
-            },
-          },
-          400: { description: "Validation error" },
-        },
+        summary: "Create author (admin)",
+        security: [{ SessionCookie: [] }],
+        responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
     "/authors/{id}": {
       get: {
         tags: ["Authors"],
-        summary: "Get an author by id",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          200: {
-            description: "OK",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: { data: { $ref: "#/components/schemas/Author" } },
-                },
-              },
-            },
-          },
-          400: { description: "Invalid id" },
-          404: { description: "Not found" },
-        },
+        summary: "Get author by id",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "OK" }, 404: { description: "Not found" } },
       },
       put: {
         tags: ["Authors"],
-        summary: "Update an author",
-        security: [{ ApiKeyAuth: [] }],
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/AuthorUpdate" },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "OK",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: { data: { $ref: "#/components/schemas/Author" } },
-                },
-              },
-            },
-          },
-          400: { description: "Validation error" },
-          404: { description: "Not found" },
-        },
+        summary: "Update author (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       delete: {
         tags: ["Authors"],
-        summary: "Delete an author",
-        security: [{ ApiKeyAuth: [] }],
+        summary: "Delete author (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Deleted" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
+      },
+    },
+    "/shelves": {
+      get: {
+        tags: ["Shelves"],
+        summary: "List shelves",
         parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
+          { name: "ownerUserId", in: "query", schema: { type: "string" } },
+          { name: "visibility", in: "query", schema: { type: "string" } },
         ],
-        responses: {
-          200: {
-            description: "Deleted",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: { data: { $ref: "#/components/schemas/Author" } },
-                },
-              },
-            },
-          },
-          400: { description: "Invalid id" },
-          404: { description: "Not found" },
-        },
+        responses: { 200: { description: "OK" } },
+      },
+      post: {
+        tags: ["Shelves"],
+        summary: "Create shelf (authenticated)",
+        security: [{ SessionCookie: [] }],
+        responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" } },
+      },
+    },
+    "/shelves/{id}": {
+      get: {
+        tags: ["Shelves"],
+        summary: "Get shelf by id",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "OK" }, 404: { description: "Not found" } },
+      },
+      put: {
+        tags: ["Shelves"],
+        summary: "Update shelf (owner or admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Forbidden" } },
+      },
+      delete: {
+        tags: ["Shelves"],
+        summary: "Delete shelf (owner or admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Deleted" }, 401: { description: "Unauthorized" }, 403: { description: "Forbidden" } },
       },
     },
     "/members": {
       get: {
         tags: ["Members"],
-        summary: "List members",
-        responses: {
-          200: {
-            description: "OK",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    data: {
-                      type: "array",
-                      items: { $ref: "#/components/schemas/Member" },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        summary: "List members (admin)",
+        security: [{ SessionCookie: [] }],
+        responses: { 200: { description: "OK" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       post: {
         tags: ["Members"],
-        summary: "Create a member",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/MemberInput" },
-            },
-          },
-        },
-        responses: {
-          201: { description: "Created" },
-          400: { description: "Validation error" },
-        },
+        summary: "Create member (admin)",
+        security: [{ SessionCookie: [] }],
+        responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
     "/members/{id}": {
       get: {
         tags: ["Members"],
-        summary: "Get member by ID",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          200: { description: "OK" },
-          404: { description: "Not found" },
-        },
+        summary: "Get member by id (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "OK" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       put: {
         tags: ["Members"],
-        summary: "Update member",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/MemberUpdate" },
-            },
-          },
-        },
-        responses: {
-          200: { description: "Updated" },
-          400: { description: "Validation error" },
-        },
+        summary: "Update member (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       delete: {
         tags: ["Members"],
-        summary: "Delete member",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          200: { description: "Deleted" },
-          404: { description: "Not found" },
-        },
+        summary: "Delete member (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Deleted" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
     "/loans": {
       get: {
         tags: ["Loans"],
-        summary: "List loans",
-        responses: {
-          200: {
-            description: "OK",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    data: {
-                      type: "array",
-                      items: { $ref: "#/components/schemas/Loan" },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        summary: "List loans (admin)",
+        security: [{ SessionCookie: [] }],
+        responses: { 200: { description: "OK" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       post: {
         tags: ["Loans"],
-        summary: "Create a loan",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/LoanInput" },
-            },
-          },
-        },
-        responses: {
-          201: { description: "Created" },
-          400: { description: "Validation error" },
-        },
+        summary: "Create loan (admin)",
+        security: [{ SessionCookie: [] }],
+        responses: { 201: { description: "Created" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
     "/loans/{id}": {
       get: {
         tags: ["Loans"],
-        summary: "Get loan by ID",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          200: { description: "OK" },
-          404: { description: "Not found" },
-        },
+        summary: "Get loan by id (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "OK" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       put: {
         tags: ["Loans"],
-        summary: "Update loan",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/LoanUpdate" },
-            },
-          },
-        },
-        responses: {
-          200: { description: "Updated" },
-          400: { description: "Validation error" },
-        },
+        summary: "Update loan (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Updated" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
       delete: {
         tags: ["Loans"],
-        summary: "Delete loan",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          200: { description: "Deleted" },
-          404: { description: "Not found" },
-        },
+        summary: "Delete loan (admin)",
+        security: [{ SessionCookie: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { 200: { description: "Deleted" }, 401: { description: "Unauthorized" }, 403: { description: "Admins only" } },
       },
     },
   },
