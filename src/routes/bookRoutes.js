@@ -4,7 +4,7 @@ const {
   createBook,
   getBookById,
   updateBook,
-  deleteBook
+  deleteBook,
 } = require("../controllers/bookController");
 const apiKeyAuth = require("../middleware/apiKeyAuth");
 
