@@ -29,11 +29,27 @@ router.get("/callback", (req, res, next) => {
   if (!oauthConfigured) {
     return oauthUnavailable(res);
   }
-  return passport.authenticate("github", { failureRedirect: "/api-docs" })(
-    req,
-    res,
-    () => res.redirect("/api-docs"),
-  );
+  return passport.authenticate("github", (err, user) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ error: true, message: "OAuth error", details: err.message });
+    }
+    if (!user) {
+      return res.status(401).json({ error: true, message: "OAuth failed" });
+    }
+
+    return req.logIn(user, (loginErr) => {
+      if (loginErr) {
+        return res.status(500).json({
+          error: true,
+          message: "Session login failed",
+          details: loginErr.message,
+        });
+      }
+      return res.redirect("/api-docs");
+    });
+  })(req, res, next);
 });
 
 // Current user profile

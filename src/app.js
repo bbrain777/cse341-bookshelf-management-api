@@ -14,6 +14,9 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
+// Render sits behind a reverse proxy; trust it so secure session cookies persist.
+app.set("trust proxy", true);
+
 app.use(
   cors({
     origin: process.env.CLIENT_ORIGIN || true,
@@ -28,9 +31,11 @@ app.use(
     secret: process.env.SESSION_SECRET || "secret",
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: "auto",
+      sameSite: "lax",
+      httpOnly: true,
     },
   }),
 );
