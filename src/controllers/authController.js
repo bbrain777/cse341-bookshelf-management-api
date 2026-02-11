@@ -10,8 +10,14 @@ function getProfile(req, res) {
 
 // Logout
 function logout(req, res) {
-  req.logout(() => {
-    res.json({ message: "Logged out successfully" });
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ error: true, message: "Logout failed" });
+    }
+
+    req.session.destroy(() => {
+      res.json({ message: "Logged out successfully" });
+    });
   });
 }
 

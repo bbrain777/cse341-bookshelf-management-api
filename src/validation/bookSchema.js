@@ -14,6 +14,14 @@ function validateBook(payload = {}) {
     value.author = payload.author.trim();
   }
 
+  if (payload.authorId !== undefined) {
+    if (typeof payload.authorId !== "string" || payload.authorId.trim() === "") {
+      errors.push("authorId must be a non-empty string when provided");
+    } else {
+      value.authorId = payload.authorId.trim();
+    }
+  }
+
   if (payload.isbn !== undefined) {
     if (typeof payload.isbn !== "string" || payload.isbn.trim() === "") {
       errors.push("isbn must be a non-empty string when provided");
@@ -73,6 +81,14 @@ function validateBookUpdate(payload = {}) {
       errors.push("author must be a non-empty string when provided");
     } else {
       value.author = payload.author.trim();
+    }
+  }
+
+  if (payload.authorId !== undefined) {
+    if (typeof payload.authorId !== "string" || payload.authorId.trim() === "") {
+      errors.push("authorId must be a non-empty string when provided");
+    } else {
+      value.authorId = payload.authorId.trim();
     }
   }
 

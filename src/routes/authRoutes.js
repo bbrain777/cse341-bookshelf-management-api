@@ -4,32 +4,42 @@ const passport = require("passport");
 const { getProfile, logout } = require("../controllers/authController");
 
 const router = express.Router();
+const oauthConfigured =
+  !!process.env.GITHUB_CLIENT_ID &&
+  !!process.env.GITHUB_CLIENT_SECRET &&
+  !!process.env.GITHUB_CALLBACK_URL;
+
+function oauthUnavailable(res) {
+  return res.status(503).json({
+    error: true,
+    message: "GitHub OAuth is not configured on this server",
+  });
+}
 
 // Start OAuth login
-router.get("/login", passport.authenticate("github"));
+router.get("/login", (req, res, next) => {
+  if (!oauthConfigured) {
+    return oauthUnavailable(res);
+  }
+  return passport.authenticate("github")(req, res, next);
+});
 
 // OAuth callback
-router.get(
-  "/callback",
-  passport.authenticate("github", { failureRedirect: "/api-docs" }),
-  (req, res) => {
-    res.redirect("/api-docs"); // redirect to Swagger after login
-  },
-);
+router.get("/callback", (req, res, next) => {
+  if (!oauthConfigured) {
+    return oauthUnavailable(res);
+  }
+  return passport.authenticate("github", { failureRedirect: "/api-docs" })(
+    req,
+    res,
+    () => res.redirect("/api-docs"),
+  );
+});
 
 // Current user profile
-router.get("/me", (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ error: true, message: "Not authenticated" });
-  }
-  res.json({ data: req.user });
-});
+router.get("/me", getProfile);
 
 // Logout
-router.post("/logout", (req, res) => {
-  req.logout(() => {
-    res.json({ message: "Logged out" });
-  });
-});
+router.post("/logout", logout);
 
 module.exports = router;

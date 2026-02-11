@@ -7,11 +7,12 @@ const {
   updateLoan,
   deleteLoan,
 } = require("../controllers/loanController");
+const { isAdmin } = require("../middleware/auth");
 
-router.get("/", listLoans);
-router.post("/", createLoan);
-router.get("/:id", getLoanById);
-router.put("/:id", updateLoan);
-router.delete("/:id", deleteLoan);
+router.get("/", isAdmin, listLoans);
+router.post("/", isAdmin, createLoan);
+router.get("/:id", isAdmin, getLoanById);
+router.put("/:id", isAdmin, updateLoan);
+router.delete("/:id", isAdmin, deleteLoan);
 
 module.exports = router;

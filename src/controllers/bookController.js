@@ -6,11 +6,40 @@ const { validateBook, validateBookUpdate } = require("../validation/bookSchema")
 async function listBooks(req, res, next) {
   try {
     const db = getDB();
-    const books = await getBooksCollection(db)
-      .find({})
+    const query = {};
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
+
+    if (req.query.q) {
+      query.title = { $regex: req.query.q, $options: "i" };
+    }
+    if (req.query.genre) {
+      query.genre = req.query.genre;
+    }
+    if (req.query.authorId) {
+      query.authorId = req.query.authorId;
+    }
+
+    const cursor = getBooksCollection(db)
+      .find(query)
       .sort({ createdAt: -1 })
-      .toArray();
-    res.json({ data: books });
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const [books, total] = await Promise.all([
+      cursor.toArray(),
+      getBooksCollection(db).countDocuments(query),
+    ]);
+
+    res.json({
+      data: books,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (err) {
     next(err);
   }
