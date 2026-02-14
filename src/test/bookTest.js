@@ -2,8 +2,8 @@ const request = require("supertest");
 
 jest.mock("../db/connect", () => {
   const books = [
-    { _id: "b1", title: "Clean Code" },
-    { _id: "b2", title: "Refactoring" },
+    { _id: "507f1f77bcf86cd799439011", title: "Clean Code" },
+    { _id: "507f1f77bcf86cd799439012", title: "Refactoring" },
   ];
 
   const makeCursor = (rows) => ({
@@ -23,6 +23,10 @@ jest.mock("../db/connect", () => {
         }
 
         return {
+          findOne: jest.fn(async (query) => {
+            const id = String(query?._id || "");
+            return books.find((b) => b._id === id) || null;
+          }),
           find: jest.fn(() => makeCursor(books)),
           countDocuments: jest.fn(async () => books.length),
         };
@@ -41,5 +45,12 @@ describe("Books API", () => {
     expect(res.body).toHaveProperty("data");
     expect(Array.isArray(res.body.data)).toBe(true);
     expect(res.body).toHaveProperty("pagination");
+  });
+
+  it("GET /books/:id should return 200 and a book", async () => {
+    const res = await request(app).get("/books/507f1f77bcf86cd799439011");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("data");
+    expect(res.body.data).toHaveProperty("title", "Clean Code");
   });
 });

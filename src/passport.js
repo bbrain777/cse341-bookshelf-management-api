@@ -49,7 +49,9 @@ if (oauthConfigured) {
     ),
   );
 } else {
-  console.warn("GitHub OAuth is not configured. Auth login routes will be unavailable.");
+  if (process.env.NODE_ENV !== "test") {
+    console.warn("GitHub OAuth is not configured. Auth login routes will be unavailable.");
+  }
 }
 
 passport.serializeUser((user, done) => {

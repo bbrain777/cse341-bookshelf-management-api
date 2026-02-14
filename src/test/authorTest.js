@@ -1,7 +1,9 @@
 const request = require("supertest");
 
 jest.mock("../db/connect", () => {
-  const authors = [{ _id: "a1", firstName: "John", lastName: "Doe" }];
+  const authors = [
+    { _id: "507f1f77bcf86cd799439021", firstName: "John", lastName: "Doe" },
+  ];
 
   return {
     getDB: jest.fn(() => ({
@@ -11,6 +13,10 @@ jest.mock("../db/connect", () => {
         }
 
         return {
+          findOne: jest.fn(async (query) => {
+            const id = String(query?._id || "");
+            return authors.find((a) => a._id === id) || null;
+          }),
           find: jest.fn(() => ({
             sort: jest.fn(() => ({
               toArray: jest.fn(async () => authors),
@@ -31,5 +37,12 @@ describe("Authors API", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("data");
     expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it("GET /authors/:id should return 200 and an author", async () => {
+    const res = await request(app).get("/authors/507f1f77bcf86cd799439021");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty("data");
+    expect(res.body.data).toHaveProperty("firstName", "John");
   });
 });
